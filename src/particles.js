@@ -6,6 +6,8 @@ import { createProgram, makeBuffer, makeTransformFeedback, makeVertexArray } fro
 export class Particles {
 
     constructor(gl, count) {
+        this.gl = gl;
+        
         // setup programs
         this.program = createProgram(gl, [computeVertexShaderSource, computeFragmentShaderSource], ['t_newPosition', 't_newVelocity']);
 
@@ -25,12 +27,12 @@ export class Particles {
 
         // make the buffers
         this.positionBuffers = [
-            makeBuffer(gl, positions, this.gl.DYNAMIC_DRAW),
-            makeBuffer(gl, positions, this.gl.DYNAMIC_DRAW)
+            makeBuffer(gl, positions, gl.DYNAMIC_DRAW),
+            makeBuffer(gl, positions, gl.DYNAMIC_DRAW)
         ];
         this.velocityBuffers = [
-            makeBuffer(gl, velocities, this.gl.DYNAMIC_DRAW),
-            makeBuffer(gl, velocities, this.gl.DYNAMIC_DRAW)
+            makeBuffer(gl, velocities, gl.DYNAMIC_DRAW),
+            makeBuffer(gl, velocities, gl.DYNAMIC_DRAW)
         ];
 
         // create the compute VAOs
@@ -48,8 +50,8 @@ export class Particles {
         this.transformFeedback2 = makeTransformFeedback(gl, [this.positionBuffers[1], this.velocityBuffers[1]]);
 
         // unbind left over stuff
-        gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-        gl.bindBuffer(this.gl.TRANSFORM_FEEDBACK_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, null);
 
         // this are the render states
         this.currentRenderState = {
