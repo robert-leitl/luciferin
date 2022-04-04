@@ -22,6 +22,7 @@
   "dependencies": {
     "@tweakpane/plugin-essentials": "^0.1.4",
     "gl-matrix": "^3.4.3",
+    "glsl-curl-noise": "^0.0.4",
     "tweakpane": "^3.0.6"
   }
 }

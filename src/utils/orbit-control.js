@@ -1,7 +1,12 @@
-import { mat4, quat, vec3 } from 'gl-matrix';
+import { quat, vec3 } from 'gl-matrix';
 
 export class OrbitControl {
 
+    // latitue thresholds in degrees
+    maxLatitude = 80;
+    minLatitude = -80;
+
+    // angular velocity in degrees / deltaTime [longitude, latitude]
     velocity = [0, 0];
 
     constructor(canvas, camera, updateCallback) {
@@ -67,8 +72,8 @@ export class OrbitControl {
         this.velocity[0] = this.camera.rotation[0] - prevRotation[0];
         this.velocity[1] = this.camera.rotation[1] - prevRotation[1];
 
-        const thetaLimitUp = 80;
-        const thetaLimitDown = -80;
+        const thetaLimitUp = this.maxLatitude;
+        const thetaLimitDown = this.minLatitude;
         if (this.camera.rotation[0] > thetaLimitUp) {
             this.camera.rotation[0] = thetaLimitUp;
         } else if (this.camera.rotation[0] < thetaLimitDown) {
