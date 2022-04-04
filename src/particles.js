@@ -6,10 +6,6 @@ import { createProgram, makeBuffer, makeTransformFeedback, makeVertexArray } fro
 export class Particles {
 
     constructor(gl, count) {
-        /** @type {WebGlRenderingContext} */
-        const gl = gl;
-        this.gl = gl;
-
         // setup programs
         this.program = createProgram(gl, [computeVertexShaderSource, computeFragmentShaderSource], ['t_newPosition', 't_newVelocity']);
 

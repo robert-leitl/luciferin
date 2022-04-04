@@ -1,11 +1,11 @@
 {
-  "name": "ssao-demo",
+  "name": "luciferin",
   "version": "1.0.0",
   "description": "",
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "parcel build src/index.html --public-url=/ssao-demo/dist/",
+    "build": "parcel build src/index.html --public-url=/luciferin/dist/",
     "serve": "live-server --port=1234 ./dist/",
     "watch": "parcel watch ./src/index.html --no-hmr",
     "start": "npm-run-all --parallel watch serve"

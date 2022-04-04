@@ -196,7 +196,7 @@ export class Luciferin {
         this.quadVAO = makeVertexArray(gl, [[this.quadBuffers.position, this.colorLocations.a_position, 2]]);
 
         // create capsule VAO
-        this.capsuleGeometry = new RoundedBoxGeometry(1, 2, 1, .5, 16);
+        this.capsuleGeometry = new RoundedBoxGeometry(1, 2, 1, .5, 20);
         this.capsuleBuffers = { 
             position: makeBuffer(gl, this.capsuleGeometry.vertices, gl.STATIC_DRAW),
             normal: makeBuffer(gl, this.capsuleGeometry.normals, gl.STATIC_DRAW),
