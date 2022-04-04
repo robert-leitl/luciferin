@@ -34,7 +34,7 @@ void main() {
     vec3 albedo = vec3(0.0, 0.04, 0.1);
 
     // ambient ligthing
-    vec3 ambient = vec3(0., 0.8, 2.0) * 0.06;
+    vec3 ambient = vec3(0., 0.8, 2.0) * 0.1;
 
     // fresnel term
     float fresnel = min(1., pow(1. - NdV, 2.));

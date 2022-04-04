@@ -14,6 +14,6 @@ void main() {
     gl_Position = u_projectionMatrix * viewPosition;
     float size = 1. - ((gl_Position.z / gl_Position.w) * .5 + .5);
     size *= max(0.1, 1. - length(a_position * vec3(1., 0.5, 1.)));
-    gl_PointSize = size * 200.;
+    gl_PointSize = size * 500.;
     v_size = size;
 }

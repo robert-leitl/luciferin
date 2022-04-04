@@ -53,7 +53,7 @@ void main() {
     float rs = sd / offset;
     vec3 o = sdNormal * (1. + rs);
     vec3 nPos = pos - o * d;
-    vec3 vPos = pos - o * 4.;
+    vec3 vPos = pos - o * 3.;
 
     t_newPosition = nPos;
     t_newVelocity = normalize(vPos - a_oldPosition) * length(a_oldVelocity);
