@@ -2,6 +2,7 @@
 
 precision highp float;
 
+uniform sampler2D u_particleTexture;
 uniform float u_frames;
 
 in vec3 v_position;
@@ -18,6 +19,7 @@ out vec4 outColor;
 void main() {
     vec3 pos = v_position;
     vec3 N = normalize(v_normal);
+    vec3 VN = normalize(v_viewNormal);
     vec3 V = normalize(v_surfaceToView);
     vec3 L = normalize(vec3(0., 1., 1.));
     float NdL = dot(N, L);
@@ -48,5 +50,17 @@ void main() {
     // color
     vec3 color = albedo + ambient * fresnel * .4 + specular * .1 + diffuse;
 
-    outColor = vec4(vec3(0., 0.8, 2.0) * diffuse + ambient, fresnel + 0.1);
+    vec4 hullColor = vec4(vec3(0., 0.8, 2.0) * diffuse + ambient, fresnel + 0.1);
+
+    vec2 uv = vec2(gl_FragCoord) / vec2(textureSize(u_particleTexture, 0));
+    vec2 RF = refract(normalize(v_viewPosition), VN, 1. / 1.33).xy * .15;
+    vec2 chromaOffset = RF * .3;
+    vec4 particleColor = vec4(
+        texture(u_particleTexture, uv + RF + chromaOffset).r,
+        texture(u_particleTexture, uv + RF).g,
+        texture(u_particleTexture, uv + RF - chromaOffset).b,
+        1.
+    );
+
+    outColor = hullColor * hullColor.a + particleColor * (1. - hullColor.a);
 }

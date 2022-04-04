@@ -1,7 +1,7 @@
 import { mat4, quat, vec2, vec3 } from 'gl-matrix';
 import { OrbitControl } from './utils/orbit-control';
 import { Particles } from './particles';
-import { createAndSetupTexture, createFramebuffer, createProgram, makeBuffer, makeVertexArray, resizeCanvasToDisplaySize } from './utils/webgl-utils';
+import { createAndSetupTexture, createFramebuffer, createProgram, makeBuffer, makeVertexArray, resizeCanvasToDisplaySize, setFramebuffer } from './utils/webgl-utils';
 import { RoundedBoxGeometry } from './utils/rounded-box-geometry';
 
 import colorVertShaderSource from './shader/color.vert';
@@ -75,6 +75,7 @@ export class Luciferin {
 
         // draw the particles
         gl.useProgram(this.particleProgram);
+        setFramebuffer(gl, this.particleFBO, this.particleFBOSize[0], this.particleFBOSize[1]);
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.disable(gl.DEPTH_TEST);
@@ -89,11 +90,12 @@ export class Luciferin {
         gl.disable(gl.BLEND);
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.CULL_FACE);
+        setFramebuffer(gl, null, gl.canvas.clientWidth, gl.canvas.clientHeight);
 
         // draw capsule
         gl.useProgram(this.colorProgram);
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.uniformMatrix4fv(this.colorLocations.u_viewMatrix, false, this.drawUniforms.u_viewMatrix);
         gl.uniformMatrix4fv(this.colorLocations.u_projectionMatrix, false, this.drawUniforms.u_projectionMatrix);
         gl.uniform3f(this.colorLocations.u_cameraPosition, this.camera.position[0], this.camera.position[1], this.camera.position[2]);
@@ -102,6 +104,9 @@ export class Luciferin {
         mat4.transpose(worldInverseTransposeMatrix, worldInverseTransposeMatrix);
         gl.uniformMatrix4fv(this.colorLocations.u_worldMatrix, false, this.drawUniforms.u_worldMatrix);
         gl.uniformMatrix4fv(this.colorLocations.u_worldInverseTransposeMatrix, false, worldInverseTransposeMatrix);
+        gl.bindTexture(gl.TEXTURE_2D, this.particleTexture);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.uniform1i(this.colorLocations.u_particleTexture, 0);
         gl.bindVertexArray(this.capsuleVAO);
         gl.drawElements(gl.TRIANGLES, this.capsuleBuffers.numElem, gl.UNSIGNED_SHORT, 0);
     }
@@ -140,7 +145,8 @@ export class Luciferin {
             u_viewMatrix: gl.getUniformLocation(this.colorProgram, 'u_viewMatrix'),
             u_projectionMatrix: gl.getUniformLocation(this.colorProgram, 'u_projectionMatrix'),
             u_worldInverseTransposeMatrix: gl.getUniformLocation(this.colorProgram, 'u_worldInverseTransposeMatrix'),
-            u_cameraPosition: gl.getUniformLocation(this.colorProgram, 'u_cameraPosition')
+            u_cameraPosition: gl.getUniformLocation(this.colorProgram, 'u_cameraPosition'),
+            u_particleTexture: gl.getUniformLocation(this.colorProgram, 'u_particleTexture')
         };
         this.particleLocations = {
             a_position: gl.getAttribLocation(this.particleProgram, 'a_position'),
