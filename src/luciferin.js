@@ -104,9 +104,12 @@ export class Luciferin {
         mat4.transpose(worldInverseTransposeMatrix, worldInverseTransposeMatrix);
         gl.uniformMatrix4fv(this.colorLocations.u_worldMatrix, false, this.drawUniforms.u_worldMatrix);
         gl.uniformMatrix4fv(this.colorLocations.u_worldInverseTransposeMatrix, false, worldInverseTransposeMatrix);
-        gl.bindTexture(gl.TEXTURE_2D, this.particleTexture);
         gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.particleTexture);
         gl.uniform1i(this.colorLocations.u_particleTexture, 0);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.envMapTexture);
+        gl.uniform1i(this.colorLocations.u_envMapTexture, 1);
         gl.bindVertexArray(this.capsuleVAO);
         gl.drawElements(gl.TRIANGLES, this.capsuleBuffers.numElem, gl.UNSIGNED_SHORT, 0);
     }
@@ -128,7 +131,7 @@ export class Luciferin {
 
         /////////////////////////////////// PARTICLES SETUP
 
-        this.particles = new Particles(gl, 6000);
+        this.particles = new Particles(gl, 8000);
 
         ///////////////////////////////////  PROGRAM SETUP
 
@@ -146,7 +149,8 @@ export class Luciferin {
             u_projectionMatrix: gl.getUniformLocation(this.colorProgram, 'u_projectionMatrix'),
             u_worldInverseTransposeMatrix: gl.getUniformLocation(this.colorProgram, 'u_worldInverseTransposeMatrix'),
             u_cameraPosition: gl.getUniformLocation(this.colorProgram, 'u_cameraPosition'),
-            u_particleTexture: gl.getUniformLocation(this.colorProgram, 'u_particleTexture')
+            u_particleTexture: gl.getUniformLocation(this.colorProgram, 'u_particleTexture'),
+            u_envMapTexture: gl.getUniformLocation(this.colorProgram, 'u_envMapTexture')
         };
         this.particleLocations = {
             a_position: gl.getAttribLocation(this.particleProgram, 'a_position'),
@@ -216,6 +220,7 @@ export class Luciferin {
 
         this.resize();
 
+        this.#initEnvMap();
         this.#updateCameraMatrix();
         this.#updateProjectionMatrix(gl);
 
@@ -226,9 +231,10 @@ export class Luciferin {
     }
 
     #initEnvMap() {
+        /** @type {WebGLRenderingContext} */
         const gl = this.gl;
 
-        /*this.envMapTexture = this.#createAndSetupTexture(gl, gl.LINEAR, gl.LINEAR);
+        this.envMapTexture = createAndSetupTexture(gl, gl.LINEAR, gl.LINEAR, gl.MIRRORED_REPEAT, gl.MIRRORED_REPEAT);
         gl.bindTexture(gl.TEXTURE_2D, this.envMapTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 100, 500, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
@@ -237,7 +243,7 @@ export class Luciferin {
         img.addEventListener('load', () => {
             gl.bindTexture(gl.TEXTURE_2D, this.envMapTexture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 100, 500, 0, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        });*/
+        });
     }
 
     #initOrbitControls() {
