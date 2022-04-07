@@ -62,10 +62,11 @@ void main() {
     vec4 hullColor = vec4(vec3(0., 0.8, 2.0) * diffuse + ambient, fresnel + 0.1);
     hullColor += vec4(env * env * env, env.r) * .5;
 
-    vec2 texelSize = 1. / vec2(textureSize(u_particleTexture, 0));
+    vec2 resolution = vec2(textureSize(u_particleTexture, 0));
+    vec2 texelSize = 1. / resolution;
     vec2 uv = vec2(gl_FragCoord) * texelSize;
     vec3 RR = refract(normalize(v_viewPosition), VN, 1. / 1.33);
-    vec2 RF = (RR.xy * u_refractionStrength) * texelSize * 1000.;
+    vec2 RF = (RR.xy * texelSize * u_refractionStrength) * 1000.;
     vec2 chromaOffset = (RF * RF) * u_dispersion;
     vec4 particleColor = vec4(
         texture(u_particleTexture, uv + RF + chromaOffset).r,

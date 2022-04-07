@@ -90,6 +90,7 @@ export class Luciferin {
         gl.uniformMatrix4fv(this.particleLocations.u_worldMatrix, false, this.drawUniforms.u_worldMatrix);
         gl.uniformMatrix4fv(this.particleLocations.u_viewMatrix, false, this.drawUniforms.u_viewMatrix);
         gl.uniformMatrix4fv(this.particleLocations.u_projectionMatrix, false, this.drawUniforms.u_projectionMatrix);
+        gl.uniform2f(this.particleLocations.u_resolution, this.gl.canvas.clientWidth, this.gl.canvas.clientHeight);
         gl.bindVertexArray(this.particleVAOs[this.particlesPositionBufferIndex]);
         gl.drawArrays(gl.POINTS, 0, this.particles.NUM_PARTICLES);
         gl.disable(gl.BLEND);
@@ -165,7 +166,8 @@ export class Luciferin {
             a_position: gl.getAttribLocation(this.particleProgram, 'a_position'),
             u_worldMatrix: gl.getUniformLocation(this.particleProgram, 'u_worldMatrix'),
             u_viewMatrix: gl.getUniformLocation(this.particleProgram, 'u_viewMatrix'),
-            u_projectionMatrix: gl.getUniformLocation(this.particleProgram, 'u_projectionMatrix')
+            u_projectionMatrix: gl.getUniformLocation(this.particleProgram, 'u_projectionMatrix'),
+            u_resolution: gl.getUniformLocation(this.particleProgram, 'u_resolution')
         };
         
         // setup uniforms
