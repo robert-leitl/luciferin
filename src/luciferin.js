@@ -29,7 +29,7 @@ export class Luciferin {
     };
 
     refractionSettings = {
-        strength: 0.035,
+        strength: .3,
         dispersion: 1.
     }
 
@@ -304,7 +304,7 @@ export class Luciferin {
             this.#createTweakpaneSlider(particlesFolder, this.particles.settings, 'noise', 'noise', 0, 10, null);
 
             const refractionFolder = this.pane.addFolder({ title: 'Refraction' });
-            this.#createTweakpaneSlider(refractionFolder, this.refractionSettings, 'strength', 'strength', 0, .1, null);
+            this.#createTweakpaneSlider(refractionFolder, this.refractionSettings, 'strength', 'strength', 0, 1, null);
             this.#createTweakpaneSlider(refractionFolder, this.refractionSettings, 'dispersion', 'dispersion', 0, 10, null);
         }
     }
