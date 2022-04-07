@@ -12,7 +12,7 @@ void main() {
     float colorMask2 = 1. - smoothstep(0., .1, length(c));
     vec3 baseColor1 = vec3(0., 0.2, 0.5) * .001;
     vec3 baseColor2 = vec3(0., 0.2, 0.4);
-    vec4 color = vec4(baseColor1 + vec3(v_size) * colorMask1, colorMask1 * 0.035);
-    color += vec4(baseColor2 + vec3(v_size) * colorMask2, colorMask2 * 0.18);
+    vec4 color = vec4(baseColor1 + vec3(v_size) * colorMask1, colorMask1 * 0.03);
+    color += vec4(baseColor2 + vec3(v_size) * colorMask2, colorMask2 * 0.03);
     outColor = color;
 }

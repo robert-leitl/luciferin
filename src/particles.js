@@ -1,9 +1,16 @@
 
+import { vec3 } from 'gl-matrix';
 import computeFragmentShaderSource from './shader/compute.frag';
 import computeVertexShaderSource from './shader/compute.vert';
 import { createProgram, makeBuffer, makeTransformFeedback, makeVertexArray } from './utils/webgl-utils';
 
 export class Particles {
+
+    settings = {
+        velocity: 1,
+        curl: 1,
+        noise: 1
+    }
 
     constructor(gl, count) {
         this.gl = gl;
@@ -16,14 +23,29 @@ export class Particles {
             a_oldPosition: gl.getAttribLocation(this.program, 'a_oldPosition'),
             a_oldVelocity: gl.getAttribLocation(this.program, 'a_oldVelocity'),
             u_deltaTime: gl.getUniformLocation(this.program, 'u_deltaTime'),
-            u_frames: gl.getUniformLocation(this.program, 'u_frames')
+            u_frames: gl.getUniformLocation(this.program, 'u_frames'),
+            u_velocity: gl.getUniformLocation(this.program, 'u_velocity'),
+            u_noiseStrength: gl.getUniformLocation(this.program, 'u_noiseStrength'),
+            u_curlStrength: gl.getUniformLocation(this.program, 'u_curlStrength')
         };
 
         // init the positions and velocities
         this.NUM_PARTICLES = count;
-        const s = .1;
-        const positions = new Float32Array(Array(this.NUM_PARTICLES).fill(0).map(_ => Array(3).fill(0).map(_ => (Math.random() * 2 - 1) * s)).flat());
-        const velocities = new Float32Array(Array(this.NUM_PARTICLES).fill(0).map(_ => Array(3).fill(0).map(_ => (Math.random() * 2 - 1) * 0.001 )).flat());
+        const s = .5;
+        const positions = new Float32Array(Array(this.NUM_PARTICLES).fill(0).map(_ => 
+            Array.from(vec3.scale(
+                vec3.create(),
+                vec3.normalize(
+                    vec3.create(), 
+                    vec3.fromValues(
+                        (Math.random() * 2 - 1),
+                        (Math.random() * 2 - 1),
+                        (Math.random() * 2 - 1)
+                    )),
+                s
+            ))
+        ).flat());
+        const velocities = new Float32Array(Array(this.NUM_PARTICLES).fill(0).map(_ => Array(3).fill(0).map(_ => (Math.random() * 2 - 1) * 0.0003 )).flat());
 
         // make the buffers
         this.positionBuffers = [
@@ -77,6 +99,9 @@ export class Particles {
         gl.useProgram(this.program);
         gl.bindVertexArray(this.currentRenderState.computeVAO);
         gl.uniform1f(this.locations.u_deltaTime, (deltaTime + 0.0001));
+        gl.uniform1f(this.locations.u_velocity, this.settings.velocity);
+        gl.uniform1f(this.locations.u_noiseStrength, this.settings.noise);
+        gl.uniform1f(this.locations.u_curlStrength, this.settings.curl);
         gl.uniform1i(this.locations.u_frames, frames);
         gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, this.currentRenderState.transformFeedback);
         gl.beginTransformFeedback(gl.POINTS);

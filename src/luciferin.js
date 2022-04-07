@@ -19,14 +19,19 @@ export class Luciferin {
 
     camera = {
         matrix: mat4.create(),
-        near: 80,
-        far: 150,
+        near: 90,
+        far: 140,
         distance: 120,
         orbit: quat.create(),
         position: vec3.create(),
         rotation: vec3.create(),
         up: vec3.fromValues(0, 1, 0)
     };
+
+    refractionSettings = {
+        strength: 0.035,
+        dispersion: 1.
+    }
 
     constructor(canvas, pane, oninit = null) {
         this.canvas = canvas;
@@ -110,6 +115,8 @@ export class Luciferin {
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this.envMapTexture);
         gl.uniform1i(this.colorLocations.u_envMapTexture, 1);
+        gl.uniform1f(this.colorLocations.u_refractionStrength, this.refractionSettings.strength);
+        gl.uniform1f(this.colorLocations.u_dispersion, this.refractionSettings.dispersion);
         gl.bindVertexArray(this.capsuleVAO);
         gl.drawElements(gl.TRIANGLES, this.capsuleBuffers.numElem, gl.UNSIGNED_SHORT, 0);
     }
@@ -150,7 +157,9 @@ export class Luciferin {
             u_worldInverseTransposeMatrix: gl.getUniformLocation(this.colorProgram, 'u_worldInverseTransposeMatrix'),
             u_cameraPosition: gl.getUniformLocation(this.colorProgram, 'u_cameraPosition'),
             u_particleTexture: gl.getUniformLocation(this.colorProgram, 'u_particleTexture'),
-            u_envMapTexture: gl.getUniformLocation(this.colorProgram, 'u_envMapTexture')
+            u_envMapTexture: gl.getUniformLocation(this.colorProgram, 'u_envMapTexture'),
+            u_refractionStrength: gl.getUniformLocation(this.colorProgram, 'u_refractionStrength'),
+            u_dispersion: gl.getUniformLocation(this.colorProgram, 'u_dispersion')
         };
         this.particleLocations = {
             a_position: gl.getAttribLocation(this.particleProgram, 'a_position'),
@@ -288,6 +297,15 @@ export class Luciferin {
             const cameraFolder = this.pane.addFolder({ title: 'Camera' });
             this.#createTweakpaneSlider(cameraFolder, this.camera, 'near', 'near', 1, maxFar, null, () => this.#updateProjectionMatrix(this.gl));
             this.#createTweakpaneSlider(cameraFolder, this.camera, 'far', 'far', 1, maxFar, null, () => this.#updateProjectionMatrix(this.gl));
+
+            const particlesFolder = this.pane.addFolder({ title: 'Particles' });
+            this.#createTweakpaneSlider(particlesFolder, this.particles.settings, 'velocity', 'velocity', 0, 10, null);
+            this.#createTweakpaneSlider(particlesFolder, this.particles.settings, 'curl', 'curl', 0, 10, null);
+            this.#createTweakpaneSlider(particlesFolder, this.particles.settings, 'noise', 'noise', 0, 10, null);
+
+            const refractionFolder = this.pane.addFolder({ title: 'Refraction' });
+            this.#createTweakpaneSlider(refractionFolder, this.refractionSettings, 'strength', 'strength', 0, .1, null);
+            this.#createTweakpaneSlider(refractionFolder, this.refractionSettings, 'dispersion', 'dispersion', 0, 10, null);
         }
     }
 

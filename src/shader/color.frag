@@ -5,6 +5,8 @@ precision highp float;
 uniform sampler2D u_particleTexture;
 uniform sampler2D u_envMapTexture;
 uniform float u_frames;
+uniform float u_refractionStrength;
+uniform float u_dispersion;
 
 in vec3 v_position;
 in vec3 v_normal;
@@ -23,10 +25,10 @@ void main() {
     vec3 VN = normalize(v_viewNormal);
     vec3 V = normalize(v_surfaceToView);
     vec3 L = normalize(vec3(0., 1., 0.4));
-    float NdL = dot(N, L);
+    float NdL = max(0., dot(N, L));
 
     // calculate the reflection vector
-    float NdV = dot(N, V);
+    float NdV = max(0., dot(N, V));
     vec3 R = NdV * N * 2. - V;
     R = normalize(R);
 
@@ -49,10 +51,10 @@ void main() {
     float fresnel = min(1., pow(1. - NdV, 2.));
 
     // diffuse shading
-    float diffuse = max(0., NdL) * 0.55;
+    float diffuse = NdL * 0.55;
 
     // specular shading
-    float specular = pow(max(0., dot(H, L)), 60.) * 0.9;
+    float specular = pow(max(0., max(0., dot(H, L))), 60.) * 0.9;
 
     // color
     vec3 color = albedo + ambient * fresnel * .4 + specular * .1 + diffuse;
@@ -61,8 +63,9 @@ void main() {
     hullColor += vec4(env * env * env, env.r) * .5;
 
     vec2 uv = vec2(gl_FragCoord) / vec2(textureSize(u_particleTexture, 0));
-    vec2 RF = refract(normalize(v_viewPosition), VN, 1. / 1.33).xy * .1;
-    vec2 chromaOffset = (RF * RF) * 5.;
+    vec3 RR = refract(V, VN, 1. / 1.33);
+    vec2 RF = RR.xy * u_refractionStrength;
+    vec2 chromaOffset = (RF * RF) * u_dispersion;
     vec4 particleColor = vec4(
         texture(u_particleTexture, uv + RF + chromaOffset).r,
         texture(u_particleTexture, uv + RF).g,

@@ -2,6 +2,9 @@
 
 uniform float u_deltaTime;
 uniform int u_frames;
+uniform float u_velocity;
+uniform float u_noiseStrength;
+uniform float u_curlStrength;
 
 const vec3 capsuleA = vec3(0., .5, 0.);
 const vec3 capsuleB = vec3(0., -.5, 0.);
@@ -39,22 +42,27 @@ vec3 sdCapsuleNormal( in vec3 p )
 #pragma glslify: cnoise2 = require(glsl-noise/simplex/2d)
 
 void main() {
-    vec3 i = a_oldPosition * .95;
-    float n2 = cnoise2(a_oldPosition.xz + float(u_frames) * 0.005);
-    n2 *= .6;
-    vec3 velocity = (a_oldVelocity + curlNoise(vec3(i.x, i.y + n2, i.z) * 2. - 1.) * 0.0007);
+    // combine a noise velocity with curl noise velocity
+    vec3 i = a_oldPosition * 1.2;
+    vec3 noiseVelocity = vec3(
+        cnoise2(a_oldPosition.xz + float(u_frames) * 0.005),
+        cnoise2(a_oldPosition.xz + float(u_frames) * 0.001),
+        cnoise2(a_oldPosition.xz + float(u_frames) * 0.008)
+    ) * 0.00002;
+    vec3 curlVelocity = a_oldVelocity + normalize(curlNoise(vec3(i.x, i.y * 0.8, i.z)) ) * 0.0001;
+    vec3 velocity = (a_oldVelocity + noiseVelocity * u_noiseStrength + curlVelocity * u_curlStrength) * u_velocity;
     vec3 delta = velocity * u_deltaTime;
     vec3 pos = a_oldPosition + delta;
 
     // use the capsule SDF to restrict the movement of the particles
     vec3 sdNormal = sdCapsuleNormal(pos);
     float d = dot(sdNormal, delta);
-    float offset = capsuleRadius * .1;
+    float offset = capsuleRadius * .2;
     float sd = min(1., max(f(pos), -offset));
     float rs = sd / offset;
     vec3 o = sdNormal * (1. + rs);
     vec3 nPos = pos - o * d;
-    vec3 vPos = pos - o * 40.;
+    vec3 vPos = pos - o * 1.;
 
     t_newPosition = nPos;
     t_newVelocity = normalize(vPos - a_oldPosition) * length(a_oldVelocity);
