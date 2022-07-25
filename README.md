@@ -2,7 +2,7 @@
 
 ![Luciferin Screenshot](https://github.com/robert-leitl/luciferin/blob/main/cover.jpg?raw=true)
 
-Messy implementation of GPGU particles bound inside a capsule SDF along with some fake refraction.
+Messy implementation of GPGPU particles bound inside a capsule SDF along with some fake refraction.
 
 [DEMO](https://robert-leitl.github.io/luciferin/dist/?debug)
 
